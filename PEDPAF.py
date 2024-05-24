@@ -114,9 +114,9 @@ def parse_args():
     plot.add_argument(
         "--log",
         dest="log",
-        action="store_false",
-        default=True,
-        help="Change axes' scale to logarithmic",
+        action="store_true",
+        default=False,
+        help="Change axes' scale to double logarithmic",
     )
 
     plot.add_argument(
@@ -199,7 +199,7 @@ def data_prepper_penergy(filepath, pos_snr, on_mean_norm, energies_only=True):
 
     snr = df["S/N"].to_numpy(dtype=float)
 
-    if pos_snr == True:
+    if pos_snr:
         mask = snr > -0.5
 
         subint = subint[mask]
@@ -209,12 +209,12 @@ def data_prepper_penergy(filepath, pos_snr, on_mean_norm, energies_only=True):
         ener_off_rms = ener_off_rms[mask]
         ener_on_rms = ener_on_rms[mask]
 
-    if on_mean_norm == True:
+    if on_mean_norm:
         mean = np.mean(ener_on)
         ener_on = ener_on / mean
         ener_off = ener_off / mean
 
-    if energies_only == True:
+    if energies_only:
         return (ener_on, ener_off)
     else:
         return (ener_on, ener_off, ener_on_rms, ener_off_rms, subint, snr)
@@ -240,19 +240,20 @@ def plot_distrib_on_and_off(
     plt.ylabel("Count")
     plt.legend(ncol=2)
     plt.grid()
+    plt.yscale("log")
+
+    if loglog_axes:
+        plt.xscale("log")
+
     plt.tight_layout()
 
-    if loglog_axes == True:
-        plt.xscale("log")
-        plt.yscale("log")
-
-    if save == True:
-        if loglog_axes == True:
+    if save:
+        if loglog_axes:
             plt.savefig(ID + "_distrib_on_and_off_loglog.pdf")
         else:
             plt.savefig(ID + "_distrib_on_and_off.pdf")
 
-    if disp == True:
+    if disp:
         plt.show()
 
     plt.close()
@@ -275,22 +276,23 @@ def plot_distrib(
     plt.xlabel("E / <E>")
     plt.ylabel("Count")
     plt.grid()
+    plt.yscale("log")
+
+    if loglog_axes:
+        plt.xscale("log")
+
     plt.tight_layout()
 
-    if loglog_axes == True:
-        plt.xscale("log")
-        plt.yscale("log")
-
-    if save == True:
-        if loglog_axes == True:
+    if save:
+        if loglog_axes:
             plt.savefig(ID + "_distrib_" + data_type + "_loglog.pdf")
         else:
             plt.savefig(ID + "_distrib_" + data_type + ".pdf")
 
-    if disp == True:
+    if disp:
         plt.show()
 
-    if close_fig == True:
+    if close_fig:
         plt.close()
 
     return h1
@@ -305,6 +307,7 @@ def plot_on_off_pulse_regions(phase, intensity, on_pulse_window, x_lims):
         on_pulse_window (2 value array like): start and end of the on pulse window
         x_lims (2 value array like): x axis limits for the plot
     """
+
     on_start = on_pulse_window[0]
     on_end = on_pulse_window[1]
 
@@ -387,13 +390,13 @@ def plot_distrib_with_fit(
 
     f = plt.plot(x_fit, y_fit, label=data_type + " fit", linestyle="--", linewidth=3)
     plt.legend()
+    plt.yscale("log")
 
-    if loglog_axes == True:
+    if loglog_axes:
         plt.xscale("log")
-        plt.yscale("log")
 
-    if save == True:
-        if loglog_axes == True:
+    if save:
+        if loglog_axes:
             plt.savefig(
                 ID
                 + "_distrib_"
@@ -407,10 +410,10 @@ def plot_distrib_with_fit(
                 ID + "_distrib_" + data_type + "_" + fitting_func.__name__ + ".pdf"
             )
 
-    if disp == True:
+    if disp:
         plt.show()
 
-    if close_fig == True:
+    if close_fig:
         plt.close()
 
     return (h, f)
@@ -454,13 +457,13 @@ def plot_distrib_on_and_off_with_fits(
     )
     plt.title(ID + " on and off energy distributions")
     plt.legend(ncol=2)
+    plt.yscale("log")
 
-    if loglog_axes == True:
+    if loglog_axes:
         plt.xscale("log")
-        plt.yscale("log")
 
-    if save == True:
-        if loglog_axes == True:
+    if save:
+        if loglog_axes:
             plt.savefig(
                 ID
                 + "_both_distrib_on_"
@@ -479,7 +482,7 @@ def plot_distrib_on_and_off_with_fits(
                 + ".pdf"
             )
 
-    if disp == True:
+    if disp:
         plt.show()
 
     plt.close()
@@ -503,19 +506,20 @@ def plot_ccdf(data, data_type, ID, loglog_axes=False, disp=True, save=False, bin
     plt.xlabel("E / <E>")
     plt.ylabel("Normalized count")
     plt.grid()
+    plt.yscale("log")
+
+    if loglog_axes:
+        plt.xscale("log")
+
     plt.tight_layout()
 
-    if loglog_axes == True:
-        plt.xscale("log")
-        plt.yscale("log")
-
-    if save == True:
-        if loglog_axes == True:
+    if save:
+        if loglog_axes:
             plt.savefig(ID + "_ccdf_" + data_type + "_loglog.pdf")
         else:
             plt.savefig(ID + "_ccdf_" + data_type + ".pdf")
 
-    if disp == True:
+    if disp:
         plt.show()
 
     plt.close()
@@ -552,12 +556,12 @@ def normal_fitting(
 
     fit, cov = sp.curve_fit(normal_distrib, bins_center, hist, p0=guesses)
 
-    if disp_fit == True:
+    if disp_fit:
         print("The fitting parameters are:", fit)
-    if disp_uncer == True:
+    if disp_uncer:
         print("The uncertainties on the fitting parameters are:", np.sqrt(np.diag(cov)))
 
-    if return_coeffs == True:
+    if return_coeffs:
         print("-*-*-*-*-*-*-*-")
         return (fit, cov)
     else:
@@ -580,12 +584,12 @@ def lognormal_fitting(
 
     fit, cov = sp.curve_fit(lognormal_distrib, bins_center, hist, p0=guesses)
 
-    if disp_fit == True:
+    if disp_fit:
         print("The fitting parameters are:", fit)
-    if disp_uncer == True:
+    if disp_uncer:
         print("The uncertainties on the fitting parameters are:", np.sqrt(np.diag(cov)))
 
-    if return_coeffs == True:
+    if return_coeffs:
         return (fit, cov)
     else:
         x_fit = np.linspace(bins_center[0], bins_center[-1], 50)
@@ -616,12 +620,12 @@ def powerlaw_fitting(
         p0=guesses,
     )
 
-    if disp_fit == True:
+    if disp_fit:
         print("The fitting parameters are:", fit)
-    if disp_uncer == True:
+    if disp_uncer:
         print("The uncertainties on the fitting parameters are:", np.sqrt(np.diag(cov)))
 
-    if return_coeffs == True:
+    if return_coeffs:
         return (fit, cov)
     else:
         x_fit = np.linspace(bins_center[fit_mask][0], bins_center[fit_mask][-1], 50)
@@ -660,10 +664,10 @@ def broken_powerlaw_fitting(
         p0=guesses1,
     )
 
-    if disp_fit == True:
+    if disp_fit:
         print("Up until x=" + str(separation) + " , the fitting parameters are:", fit0)
         print("After x=" + str(separation) + " , the fitting parameters are:", fit1)
-    if disp_uncer == True:
+    if disp_uncer:
         print(
             "Up until x="
             + str(separation)
@@ -677,7 +681,7 @@ def broken_powerlaw_fitting(
             np.sqrt(np.diag(cov1)),
         )
 
-    if return_coeffs == True:
+    if return_coeffs:
         return (fit0, cov0, fit1, cov1)
     else:
         x_fit0 = np.linspace(
@@ -694,7 +698,7 @@ def broken_powerlaw_fitting(
         print("KS test 2: ", ks_2samp(hist[~split_mask], y_fit1))
         print("-*-*-*-*-*-*-*-")
 
-        if any(np.isnan(np.sqrt(np.diag(cov0)))) == True:
+        if any(np.isnan(np.sqrt(np.diag(cov0)))) is True:
             y_fit0 = y_fit0 * np.nan
             print("First powerlaw removed because of bad fitting")
 
@@ -712,12 +716,12 @@ def chi_squared_fitting(
 
     fit, cov = sp.curve_fit(chi_squared_distrib, bins_center, hist, p0=guesses)
 
-    if disp_fit == True:
+    if disp_fit:
         print("The fitting parameters are:", fit)
-    if disp_uncer == True:
+    if disp_uncer:
         print("The uncertainties on the fitting parameters are:", np.sqrt(np.diag(cov)))
 
-    if return_coeffs == True:
+    if return_coeffs:
         return (fit, cov)
     else:
         x_fit = np.linspace(bins_center[0], bins_center[-1], 50)
